@@ -1,8 +1,10 @@
 const { test, expect } = require('@playwright/test');
+let LoginId = 'agent12new@yopmail.com';
+let LoginPassword = 'password';
 
 let user_name = "John";
-let user_email = "john44@yopmail.com";
-let user_phone = "144";
+let user_email = "john41@yopmail.com";
+let user_phone = "141";
 let user_branch = "Chandigarh";
 let destination_country = "Australia";
 let month = "Feb";
@@ -23,16 +25,15 @@ let reminderYear = '2026';
 let reminderMonth = 'Jun';
 let reminderDate = '15';
 
-test('Positive Flow', async ({ page }) => {
 
-    // LOGIN
+test("Agent Login Flow", async ({ page }) => {
     await page.goto('https://testing-app.firmli.ai');
-    await page.locator('#login-email').fill("firmli2026@yopmail.com");
+    await page.locator('#login-email').fill(LoginId);
     await page.getByRole('button', { name: 'Next' }).click();
-    await page.locator('#login-password').fill("Oslo@123");
+    await page.locator('#login-password').fill(LoginPassword);
     await page.getByRole('button', { name: 'Signin' }).click();
-
     await expect(page).toHaveTitle('Firmli');
+
 
     // ================= GET LEAD STAGES =================
 
@@ -156,8 +157,9 @@ test('Positive Flow', async ({ page }) => {
 
         await expect(page.getByText("Lead status updated successfully")).toBeVisible();
     }
-
+    //Application Form to be visible
     await expect(page.getByText("Create Application")).toBeVisible();
+
 
     // ================= CREATE APPLICATION =================
 
@@ -286,4 +288,4 @@ test('Positive Flow', async ({ page }) => {
             await page.getByRole('button', { name: 'Set reminder' }).click();
         }
     }
-});
+})
