@@ -1,48 +1,39 @@
 import { test, expect } from "@playwright/test";
 
-const URL = "https://testing-app.firmli.ai/";
-const destination_country = "Australia";
-const study_level = "Master Degree";
+let URL = "https://testing-app.firmli.ai/"
+let waitURL = "https://testing-app.firmli.ai/programs"
+let destination_country = "Australia";
+let study_level = "Master Degree";
 
-test("Program Finder - Optimized", async ({ page }) => {
-
-    // 🔹 Login
+test("Program Finder", async ({ page }) => {
     await page.goto(URL);
-
-    await page.fill('#login-email', "firmli2026@yopmail.com");
+    await page.locator('#login-email').fill("firmli2026@yopmail.com");
     await page.getByRole('button', { name: 'Next' }).click();
-
-    await page.fill('#login-password', "Oslo@123");
+    await page.locator('#login-password').fill("Oslo@123");
     await page.getByRole('button', { name: 'Signin' }).click();
 
-    await expect(page).toHaveTitle(/Firmli/);
-
-    // 🔹 Navigate to Program Finder
-    await page.getByRole('link', { name: 'Program Finder' }).click();
-    await page.waitForURL(/programs/);
-
-    // 🔹 Switch to new UI
+    await expect(page).toHaveTitle('Firmli');
+    await page.locator('a').filter({ hasText: 'Program Finder' }).click();
+    await page.waitForURL(waitURL);
     await page.getByRole('button', { name: 'Switch to New Interface' }).click();
-    await page.waitForURL(/programs-new/);
+    await page.waitForURL("https://testing-app.firmli.ai/programs-new");
+    await page.waitForTimeout(5000);
 
-    // 🔹 Reusable function for dropdown selection
-    async function selectDropdown(placeholder, value) {
-        const field = page.getByPlaceholder(placeholder);
 
-        await field.click();
-        await field.fill(value);
+    //Destination country filter selection According to the provided Country
+    await page.getByPlaceholder("Destination Country").click();
+    await page.keyboard.type(destination_country);
+    await expect(page.getByRole('option').first()).toBeVisible();
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("Enter");
 
-        const option = page.getByRole('option').first();
-        await expect(option).toBeVisible();
+    //Study Level filter selection According to the provided Data
+    await page.getByPlaceholder("Study Level").click();
+    await page.getByPlaceholder("Study Level").click();
+    await page.keyboard.type(study_level);
+    await expect(page.getByRole('option').first()).toBeVisible();
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("Enter");
+    await page.waitForTimeout(5000);
 
-        await option.click();
-    }
-
-    // 🔹 Apply filters
-    await selectDropdown("Destination Country", destination_country);
-    await selectDropdown("Study Level", study_level);
-
-    // 🔹 Optional: Wait for results to load (better than timeout)
-    await page.waitForLoadState('networkidle');
-
-});
+})

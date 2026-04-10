@@ -1,9 +1,9 @@
 const { test, expect } = require('@playwright/test');
 
 let user_name = "John";
-let user_email = "john27@yopmail.com";
-let user_phone = "127";
-let user_branch = "Chandigarh";
+let user_email = "john28@yopmail.com";
+let user_phone = "128";
+let user_branch = "Mohali";
 let destination_country = "Australia";
 let month = "Feb";
 let year = "2026";
@@ -292,81 +292,81 @@ test('Positive Flow', async ({ page }) => {
 
 
     await page.goto('https://testing-app.firmli.ai/master-copy');
-    
-        await page.getByText('Timeline').first().click();
-        const row1 = page.locator('tbody tr', {
-            hasText: application_Timeline_Stage_Name
-        });
-        await row1.getByText('Assign Stages').click();
-        const stagesLocator1 = page.locator(
-            "//span[@class='m_1e0e6180 mantine-Pill-label']"
+
+    await page.getByText('Timeline').first().click();
+    const row1 = page.locator('tbody tr', {
+        hasText: application_Timeline_Stage_Name
+    });
+    await row1.getByText('Assign Stages').click();
+    const stagesLocator1 = page.locator(
+        "//span[@class='m_1e0e6180 mantine-Pill-label']"
+    );
+    await expect(stagesLocator1.first()).toBeVisible();
+    const Application_Stages = await stagesLocator1.allTextContents();
+    console.log(Application_Stages);
+
+    await page.goBack({ waitUntil: 'domcontentloaded' });
+    await page.locator('a').filter({ hasText: 'Enrolli' }).click();
+    await page.waitForLoadState('domcontentloaded');
+
+    const searchInput1 = page.getByPlaceholder('search').first();
+
+    await searchInput1.click();
+
+    await page.waitForTimeout(1000);
+    await searchInput1.pressSequentially(user_email, { delay: 100 });
+    await page.waitForTimeout(1000);
+    await page.locator("//span[@class= 'm_8d3afb97 mantine-ActionIcon-icon']").first().click();
+
+    for (let app = 0; app < Application_Stages.length; app++) {
+
+        const application_status = page.locator(
+            "//*[@id='enrolli-card-open-app-status-modal-btn']"
         );
-        await expect(stagesLocator1.first()).toBeVisible();
-        const Application_Stages = await stagesLocator1.allTextContents();
-        console.log(Application_Stages);
-    
-        await page.goBack({ waitUntil: 'domcontentloaded' });
-        await page.locator('a').filter({ hasText: 'Enrolli' }).click();
-        await page.waitForLoadState('domcontentloaded');
-    
-        const searchInput1 = page.getByPlaceholder('search').first();
-    
-        await searchInput1.click();
-    
+        // click separately
+
+        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
+        console.log(await application_status.textContent());
+
+
+        await application_status.click();
+
+        await page.getByPlaceholder('Please select status').click();
+        await page.getByRole('option', { name: Application_Stages[app], exact: true }).click();
         await page.waitForTimeout(1000);
-        await searchInput1.pressSequentially(user_email, { delay: 100 });
-        await page.waitForTimeout(1000);
-        await page.locator("//span[@class= 'm_8d3afb97 mantine-ActionIcon-icon']").first().click();
-    
-        for (let app = 0; app < Application_Stages.length; app++) {
-    
-            const application_status = page.locator(
-                "//*[@id='enrolli-card-open-app-status-modal-btn']"
-            );
-            // click separately
-    
-            console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-    
-            console.log(await application_status.textContent());
-    
-    
-            await application_status.click();
-    
-            await page.getByPlaceholder('Please select status').click();
-            await page.getByRole('option', { name: Application_Stages[app], exact: true }).click();
+
+        const subStatus = page.getByPlaceholder('Please select sub status');
+
+        if (await subStatus.count() > 0) {
+
+            await subStatus.click();
             await page.waitForTimeout(1000);
-    
-            const subStatus = page.getByPlaceholder('Please select sub status');
-    
-            if (await subStatus.count() > 0) {
-    
-                await subStatus.click();
-                await page.waitForTimeout(1000);
-                await page.keyboard.press('ArrowDown');
-                await page.keyboard.press('Enter');
-            }
-    
-            await page.getByRole('button', { name: /submit/i }).last().click();
-            const date_picker = page.locator("//button[@id ='enrolli-reminder-card-create-datetimepckr-scheduleat-inpt']");
-            await page.waitForTimeout(1000);
-            if (await date_picker.count() > 0) {
-                await date_picker.click();
-                await page.locator("//button[@class='mantine-focus-auto m_f6645d97 mantine-DateTimePicker-calendarHeaderLevel m_87cf2631 mantine-UnstyledButton-root']").click();
-                await page.locator("//button[@class='mantine-focus-auto m_f6645d97 mantine-DateTimePicker-calendarHeaderLevel m_87cf2631 mantine-UnstyledButton-root']").click();
-                await page.getByText(reminderYear).last().click();
-                await page.getByText(reminderMonth).last().click();
-                await page.getByText(reminderDate).last().click();
-                await page.locator
-                    ("//button[@class='mantine-focus-auto mantine-active mantine-DateTimePicker-submitButton m_8d3f4000 mantine-ActionIcon-root m_87cf2631 mantine-UnstyledButton-root']").click();
-    
-                await page.locator('#enrolli-reminder-card-create-text-note-inpt')
-                    .fill('Reminder Note');
-                await page.getByRole('button', { name: 'Set reminder' }).click();
-            }
-    
-    
-            // await expect(application_status)
-            //     .toContainText(Application_Stages[app]);
+            await page.keyboard.press('ArrowDown');
+            await page.keyboard.press('Enter');
         }
+
+        await page.getByRole('button', { name: /submit/i }).last().click();
+        const date_picker = page.locator("//button[@id ='enrolli-reminder-card-create-datetimepckr-scheduleat-inpt']");
+        await page.waitForTimeout(1000);
+        if (await date_picker.count() > 0) {
+            await date_picker.click();
+            await page.locator("//button[@class='mantine-focus-auto m_f6645d97 mantine-DateTimePicker-calendarHeaderLevel m_87cf2631 mantine-UnstyledButton-root']").click();
+            await page.locator("//button[@class='mantine-focus-auto m_f6645d97 mantine-DateTimePicker-calendarHeaderLevel m_87cf2631 mantine-UnstyledButton-root']").click();
+            await page.getByText(reminderYear).last().click();
+            await page.getByText(reminderMonth).last().click();
+            await page.getByText(reminderDate).last().click();
+            await page.locator
+                ("//button[@class='mantine-focus-auto mantine-active mantine-DateTimePicker-submitButton m_8d3f4000 mantine-ActionIcon-root m_87cf2631 mantine-UnstyledButton-root']").click();
+
+            await page.locator('#enrolli-reminder-card-create-text-note-inpt')
+                .fill('Reminder Note');
+            await page.getByRole('button', { name: 'Set reminder' }).click();
+        }
+
+
+        // await expect(application_status)
+        //     .toContainText(Application_Stages[app]);
+    }
 
 })

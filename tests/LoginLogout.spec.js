@@ -172,7 +172,7 @@ test("Login with Correct phone number and incorrect Password", async ({ page }) 
     console.log("Login with correct phone number and incorrect password worked");
 })
 
-test.only("Login with phone number and case sensitive password", async ({ page }) => {
+test("Login with phone number and case sensitive password", async ({ page }) => {
     await page.goto("https://testing-app.firmli.ai/");
     await page.getByRole('tab', { name: 'Login with Phone' }).click();
     const phoneInput = page.getByRole('textbox').first();
