@@ -1,0 +1,93 @@
+import { test, expect } from '@playwright/test';
+import clients from '../client/clients.json';
+
+import { fillForm } from '../utils/formFiller.js';
+import { normalizeFields } from '../utils/fieldMapper.js';
+
+// dynamic client
+import current from '../client/client.current.json';
+const clientName = current.clientName;
+
+const client = clients[clientName];
+if (!client) {
+    throw new Error(`Client ${clientName} not found in clients.json`);
+}
+
+const clientId = clientName.toLowerCase();
+const apiBase = `https://${clientId}-api.firmli.com`;
+const leadApi = `${apiBase}/v1/masters/forms/fields?module_type=lead`;
+
+test('Dynamic Lead Form', async ({ page }) => {
+
+    console.log(`🚀 Running Lead for: ${clientName}`);
+
+
+    await page.goto(client.url);
+
+    const safeGetLocalStorage = async (key) => {
+        for (let i = 0; i < 5; i++) {
+            try {
+                return await page.evaluate((k) => localStorage.getItem(k), key);
+            } catch (e) {
+                await page.waitForTimeout(1000);
+            }
+        }
+        return null;
+    };
+
+    const token = await safeGetLocalStorage('token');
+    const deviceIdentifier = await safeGetLocalStorage('deviceIdentifier') || '';
+
+    console.log("🔐After Signin Token:", token);
+
+
+    const response = await page.request.get(leadApi, { headers: { 'fi-device-number': deviceIdentifier, 'fi-client-number': clientName, 'Authorization': `Bearer ${token}` } });
+    const apiData = await response.json();
+    console.log("API Response:", apiData)
+
+    const fields = normalizeFields(apiData);
+    console.log("fields:", fields);
+
+
+
+    await page.goto(`${client.url}/leads`);
+
+    await page.waitForTimeout(2000);
+    await page.click('text= create Lead');
+    await page.waitForTimeout(5000);
+
+    const filledData = await fillForm(page, fields, clientName);
+    await page.waitForTimeout(2000);
+
+    // console.log("✅ Lead Data:", filledData);
+    // console.log(JSON.stringify(filledData, null, 2))
+    // await page.waitForTimeout(5000);
+
+    await page.click('button:has-text("Submit")');
+    await page.waitForTimeout(20000);
+
+    console.log("lead created successfully");
+
+    // await expect(page).toHaveURL("/leads");
+
+    await page.waitForTimeout(2000);
+    const searchInput = page.getByPlaceholder('Search');
+    await page.waitForTimeout(2000);
+
+    await searchInput.click();
+    await searchInput.pressSequentially(filledData.email, { delay: 100 });
+    await page.keyboard.press("Enter");
+
+    // wait until only 1 card remains
+    const cards = page.locator('.mantine-Card-root');
+    await expect(cards).toHaveCount(1);
+
+    const count = await cards.count();
+    console.log(count);
+    if (count == 1) {
+        console.log("Lead is created successfully");
+    }
+    else {
+        console.log("Lead is not created successfully");
+    }
+});
